@@ -15,6 +15,7 @@ const statusClassMap = {
 export default function StatusBadge({ status }) {
   return (
     <span className={`badge ${statusClassMap[status] || ''}`}>
+      <span className="badge-dot" />
       {status}
     </span>
   );

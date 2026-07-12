@@ -133,7 +133,7 @@ export default function Trips() {
                 ))}
               </select>
               {selectedVehicle && (
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                <span className="form-hint">
                   Max capacity: {selectedVehicle.maxLoadCapacity.toLocaleString()} kg
                 </span>
               )}

@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { useData } from '../DataContext';
 import KPICard from '../components/KPICard';
 import StatusBadge from '../components/StatusBadge';
+import FleetMap from '../components/FleetMap';
+import FleetSpotlight from '../components/FleetSpotlight';
 import { VEHICLE_TYPES, VEHICLE_STATUSES, REGIONS } from '../data';
 
 export default function Dashboard() {
@@ -38,13 +40,24 @@ export default function Dashboard() {
   const vehicleMap = Object.fromEntries(vehicles.map(v => [v.id, v]));
   const driverMap = Object.fromEntries(drivers.map(d => [d.id, d]));
 
+  const hasFilters = filterType || filterStatus || filterRegion;
+
+  const spotlightTrip = trips.find(t => t.status === 'Dispatched') || null;
+  const spotlightVehicle = spotlightTrip ? vehicleMap[spotlightTrip.vehicleId] : null;
+  const spotlightDriver = spotlightTrip ? driverMap[spotlightTrip.driverId] : null;
+
   return (
     <div className="animate-in">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Dashboard</h1>
-          <p className="page-subtitle">Fleet overview and key metrics</p>
+          <h1 className="page-title">Operations Dashboard</h1>
+          <p className="page-subtitle">Live fleet tracking and key metrics</p>
         </div>
+      </div>
+
+      <div className="fleet-hero">
+        <FleetMap trips={trips} vehicles={vehicles} drivers={drivers} />
+        <FleetSpotlight trip={spotlightTrip} vehicle={spotlightVehicle} driver={spotlightDriver} />
       </div>
 
       <div className="filter-bar">
@@ -60,6 +73,14 @@ export default function Dashboard() {
           <option value="">All Regions</option>
           {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
+        {hasFilters && (
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => { setFilterType(''); setFilterStatus(''); setFilterRegion(''); }}
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
       <div className="kpi-grid">
@@ -67,49 +88,59 @@ export default function Dashboard() {
           label="Active Vehicles"
           value={kpis.activeVehicles}
           color="#FC7011"
-          icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 17h1l2-8h8l2 8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>}
+          delay={0}
+          icon={<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M5 17h1l2-8h8l2 8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>}
         />
         <KPICard
           label="Available Vehicles"
           value={kpis.availableVehicles}
-          color="#7BB15D"
-          icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>}
+          color="#4ade80"
+          delay={50}
+          icon={<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75"><polyline points="20 6 9 17 4 12"/></svg>}
         />
         <KPICard
           label="In Maintenance"
           value={kpis.inMaintenance}
-          color="#C43A23"
-          icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>}
+          color="#f87171"
+          delay={100}
+          icon={<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>}
         />
         <KPICard
           label="Active Trips"
           value={kpis.activeTrips}
-          color="#FC7011"
-          icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
+          color="#60a5fa"
+          delay={150}
+          icon={<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
         />
         <KPICard
           label="Pending Trips"
           value={kpis.pendingTrips}
-          color="#F5A623"
-          icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>}
+          color="#fbbf24"
+          delay={200}
+          icon={<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>}
         />
         <KPICard
           label="Drivers On Duty"
           value={kpis.driversOnDuty}
-          color="#7BB15D"
-          icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
+          color="#4ade80"
+          delay={250}
+          icon={<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
         />
         <KPICard
           label="Fleet Utilization"
           value={`${kpis.utilization}%`}
           color="#FC7011"
-          icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
+          delay={300}
+          icon={<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
         />
       </div>
 
       <div className="card">
-        <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '16px' }}>Recent Trips</h3>
-        <div className="table-container" style={{ border: 'none' }}>
+        <div className="section-header">
+          <h3 className="section-title">Recent Trips</h3>
+          <span className="text-meta">{recentTrips.length} trips</span>
+        </div>
+        <div className="table-container nested">
           <table>
             <thead>
               <tr>
@@ -123,17 +154,35 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {recentTrips.map(trip => (
-                <tr key={trip.id}>
-                  <td>{trip.id}</td>
-                  <td>{trip.source} → {trip.destination}</td>
-                  <td>{vehicleMap[trip.vehicleId]?.registrationNumber || '—'}</td>
-                  <td>{driverMap[trip.driverId]?.name || '—'}</td>
-                  <td><StatusBadge status={trip.status} /></td>
-                  <td>{trip.cargoWeight.toLocaleString()}</td>
-                  <td>{trip.createdAt}</td>
+              {recentTrips.length === 0 ? (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="empty-state">
+                      <div className="empty-state-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                          <path d="M2 17l10 5 10-5"/>
+                          <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                      </div>
+                      <div className="empty-state-title">No trips yet</div>
+                      <p>Create a trip to see recent activity here.</p>
+                    </div>
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                recentTrips.map(trip => (
+                  <tr key={trip.id}>
+                    <td>{trip.id}</td>
+                    <td>{trip.source} → {trip.destination}</td>
+                    <td>{vehicleMap[trip.vehicleId]?.registrationNumber || '—'}</td>
+                    <td>{driverMap[trip.driverId]?.name || '—'}</td>
+                    <td><StatusBadge status={trip.status} /></td>
+                    <td>{trip.cargoWeight.toLocaleString()}</td>
+                    <td className="text-secondary">{trip.createdAt}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

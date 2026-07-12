@@ -29,7 +29,7 @@ export default function Drivers() {
     {
       key: 'licenseExpiry', label: 'License Expiry',
       render: (v) => (
-        <span style={{ color: isExpired(v) ? 'var(--error)' : 'inherit' }}>
+        <span className={isExpired(v) ? 'text-error' : ''}>
           {v} {isExpired(v) ? '(Expired)' : ''}
         </span>
       ),
@@ -38,7 +38,7 @@ export default function Drivers() {
     {
       key: 'safetyScore', label: 'Safety Score',
       render: (v) => (
-        <span style={{ color: v >= 85 ? 'var(--success)' : v >= 70 ? 'var(--warning)' : 'var(--error)' }}>
+        <span className={v >= 85 ? 'score-high' : v >= 70 ? 'score-medium' : 'score-low'}>
           {v}
         </span>
       ),

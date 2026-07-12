@@ -54,7 +54,7 @@ export default function Fuel() {
     { key: 'fuel', label: 'Fuel (₹)', render: v => `₹${v.toLocaleString()}` },
     { key: 'maintenance', label: 'Maintenance (₹)', render: v => `₹${v.toLocaleString()}` },
     { key: 'expenses', label: 'Other (₹)', render: v => `₹${v.toLocaleString()}` },
-    { key: 'total', label: 'Total (₹)', render: v => <strong style={{ color: 'var(--accent)' }}>₹{v.toLocaleString()}</strong> },
+    { key: 'total', label: 'Total (₹)', render: v => <strong className="text-accent">₹{v.toLocaleString()}</strong> },
   ];
 
   const handleFuelSubmit = (e) => {
@@ -84,7 +84,7 @@ export default function Fuel() {
           <h1 className="page-title">Fuel & Expenses</h1>
           <p className="page-subtitle">Operational cost tracking</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="page-actions">
           <button className="btn btn-primary" onClick={() => { setFuelForm({ vehicleId: '', liters: '', cost: '', date: '', odometer: '' }); setFuelModalOpen(true); }}>
             + Fuel Log
           </button>
@@ -94,11 +94,11 @@ export default function Fuel() {
         </div>
       </div>
 
-      <div className="filter-bar" style={{ marginBottom: '20px' }}>
+      <div className="tab-segment">
         {['fuel', 'expenses', 'summary'].map(tab => (
           <button
             key={tab}
-            className={`btn ${activeTab === tab ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+            className={`btn btn-sm ${activeTab === tab ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setActiveTab(tab)}
           >
             {tab === 'fuel' ? 'Fuel Logs' : tab === 'expenses' ? 'Expenses' : 'Cost Summary'}

@@ -5,15 +5,32 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from 'recharts';
 
-const COLORS = ['#FC7011', '#7BB15D', '#C43A23', '#F5A623', '#9E9E9F', '#4A90D9'];
+const COLORS = ['#FC7011', '#4ade80', '#f87171', '#fbbf24', '#71717a', '#60a5fa'];
 
 const tooltipStyle = {
-  backgroundColor: '#1a1a1d',
-  border: '1px solid #2a2a2d',
-  borderRadius: '8px',
-  color: '#F8F8F8',
+  backgroundColor: '#18181b',
+  border: '1px solid rgba(255, 255, 255, 0.06)',
+  borderRadius: '12px',
+  color: '#fafafa',
   fontSize: '12px',
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+  padding: '8px 12px',
 };
+
+function ChartEmpty({ label }) {
+  return (
+    <div className="chart-empty">
+      <div className="chart-empty-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      </div>
+      <p>{label}</p>
+    </div>
+  );
+}
 
 export default function Reports() {
   const { vehicles, trips, fuelLogs, maintenance, expenses } = useData();
@@ -97,7 +114,7 @@ export default function Reports() {
           <h1 className="page-title">Reports & Analytics</h1>
           <p className="page-subtitle">Fleet performance insights</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="page-actions">
           <button className="btn btn-secondary btn-sm" onClick={() => exportCSV(fuelEfficiency, 'fuel_efficiency')}>
             Export Fuel
           </button>
@@ -113,66 +130,84 @@ export default function Reports() {
       <div className="charts-grid">
         <div className="chart-card">
           <h3 className="chart-title">Fuel Efficiency (km/L)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={fuelEfficiency}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2d" />
-              <XAxis dataKey="name" stroke="#9E9E9F" fontSize={11} angle={-35} textAnchor="end" height={60} />
-              <YAxis stroke="#9E9E9F" fontSize={11} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="efficiency" fill="#FC7011" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {fuelEfficiency.length === 0 ? (
+            <ChartEmpty label="No fuel efficiency data available yet" />
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={fuelEfficiency}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                <XAxis dataKey="name" stroke="#71717a" fontSize={11} angle={-35} textAnchor="end" height={60} tickLine={false} axisLine={false} />
+                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                <Bar dataKey="efficiency" fill="#FC7011" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="chart-card">
           <h3 className="chart-title">Fleet Utilization</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={fleetUtilization}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                dataKey="value"
-                label={({ name, value }) => `${name}: ${value}`}
-                labelLine={false}
-              >
-                {fleetUtilization.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={tooltipStyle} />
-              <Legend wrapperStyle={{ fontSize: '12px', color: '#9E9E9F' }} />
-            </PieChart>
-          </ResponsiveContainer>
+          {fleetUtilization.length === 0 ? (
+            <ChartEmpty label="No fleet utilization data available yet" />
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={fleetUtilization}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  dataKey="value"
+                  paddingAngle={2}
+                  label={({ name, value }) => `${name}: ${value}`}
+                  labelLine={false}
+                >
+                  {fleetUtilization.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="transparent" />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={tooltipStyle} />
+                <Legend wrapperStyle={{ fontSize: '12px', color: '#71717a' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="chart-card">
           <h3 className="chart-title">Operational Cost Breakdown (Top 8)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={operationalCost}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2d" />
-              <XAxis dataKey="name" stroke="#9E9E9F" fontSize={11} angle={-35} textAnchor="end" height={60} />
-              <YAxis stroke="#9E9E9F" fontSize={11} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="fuel" stackId="a" fill="#FC7011" name="Fuel" />
-              <Bar dataKey="maintenance" stackId="a" fill="#C43A23" name="Maintenance" />
-              <Bar dataKey="other" stackId="a" fill="#F5A623" name="Other" />
-            </BarChart>
-          </ResponsiveContainer>
+          {operationalCost.length === 0 ? (
+            <ChartEmpty label="No operational cost data available yet" />
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={operationalCost}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                <XAxis dataKey="name" stroke="#71717a" fontSize={11} angle={-35} textAnchor="end" height={60} tickLine={false} axisLine={false} />
+                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                <Bar dataKey="fuel" stackId="a" fill="#FC7011" name="Fuel" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="maintenance" stackId="a" fill="#f87171" name="Maintenance" />
+                <Bar dataKey="other" stackId="a" fill="#fbbf24" name="Other" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="chart-card">
           <h3 className="chart-title">Vehicle ROI (%)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={vehicleROI}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2d" />
-              <XAxis dataKey="name" stroke="#9E9E9F" fontSize={11} angle={-35} textAnchor="end" height={60} />
-              <YAxis stroke="#9E9E9F" fontSize={11} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="roi" fill="#7BB15D" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {vehicleROI.length === 0 ? (
+            <ChartEmpty label="No ROI data available yet" />
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={vehicleROI}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                <XAxis dataKey="name" stroke="#71717a" fontSize={11} angle={-35} textAnchor="end" height={60} tickLine={false} axisLine={false} />
+                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                <Bar dataKey="roi" fill="#4ade80" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>
